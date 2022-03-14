@@ -2,7 +2,7 @@ package org.boygear.services.download;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.boygear.entities.Measurement;
+import org.boygear.entities.DownloadedMeasurement;
 import org.boygear.exceptions.BadRequestException;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +52,7 @@ public class DownloadService {
     }
 
     public List<DownloadedMeasurement> getCurrentMeasurementList(){
-        String requestString = null;
+        String requestString = "";
         try{
             requestString = readTheResponse(setRequest());
         }catch (IOException e){

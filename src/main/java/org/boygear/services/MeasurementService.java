@@ -2,14 +2,16 @@ package org.boygear.services;
 
 import org.boygear.entities.Measurement;
 import org.boygear.entities.Station;
+import org.boygear.exceptions.BadRequestException;
 import org.boygear.repositories.MeasurementRepository;
 import org.boygear.repositories.StationRepository;
-import org.boygear.services.download.DownloadedMeasurement;
+import org.boygear.entities.DownloadedMeasurement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +35,46 @@ public class MeasurementService {
         return measurementRepository.saveAll(measurementList);
     }
 
-    public List<Measurement> parseDownloadedMeasurementToMeasurementAndStation(List<DownloadedMeasurement> downloadedMeasurementList){
+    public List<Measurement> getMeasurement(Long id, String startTime, String endTime){
+        LocalDateTime startTimeLDT = parseStringTimeToLocalDateTime(startTime);
+        LocalDateTime endTimeLDT = LocalDateTime.now();
+        if(endTime != null){
+            endTimeLDT = parseStringTimeToLocalDateTime(endTime);
+        }
+
+        if(id != null){
+            Station station = getStationWithIdWhenExists(id);
+            return measurementRepository.findAllByStationAndWaterLevelMeasurementDateBetween(station, startTimeLDT, endTimeLDT);
+        }else{
+            return measurementRepository.findAll();
+        }
+    }
+
+    private Station getStationWithIdWhenExists(Long id){
+        if(stationRepository.existsById(id)){
+            return stationRepository.findById(id).get();
+        }else{
+            throw new BadRequestException("Station with specified id doesn't exists");
+        }
+    }
+
+    private LocalDateTime parseStringTimeToLocalDateTime(String time){
+        //2021-10-28 14:00:00
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if(time != null){
+            try{
+                return LocalDateTime.parse(time, formatter);
+
+            }catch (DateTimeParseException e){
+                throw new BadRequestException("Wrong time, correct is: yyyy-MM-dd HH:mm:ss", e);
+            }
+        }else{
+            return LocalDateTime.parse("2000-01-01 00:00:00", formatter);
+        }
+
+    }
+
+    private List<Measurement> parseDownloadedMeasurementToMeasurementAndStation(List<DownloadedMeasurement> downloadedMeasurementList){
         List<Measurement> measurementList = new ArrayList<>();
 
 

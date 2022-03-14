@@ -1,5 +1,6 @@
 package org.boygear.services;
 
+import org.boygear.DTO.UserDTO;
 import org.boygear.entities.User;
 import org.boygear.repositories.UserRepository;
 import org.junit.Assert;
@@ -30,15 +31,19 @@ public class UserServiceTest {
     @Test
     public void userAdd() {
         //given
+        UserDTO userDTO = new UserDTO();
         User user = new User();
         user.setUsername("boygear");
         user.setPassword("passowrd");
         user.setEmail("boy@test.pl");
+        userDTO.setUsername("boygear");
+        userDTO.setPassword("passowrd");
+        userDTO.setEmail("boy@test.pl");
 
         Mockito.when(userRepository.save(user)).thenReturn(user);
 
         //when
-        User userResult = userService.userAdd(user);
+        User userResult = userService.userAdd(userDTO);
         //then
         Assert.assertNotNull(userResult);
         Assert.assertEquals(user.getId(),userResult.getId());

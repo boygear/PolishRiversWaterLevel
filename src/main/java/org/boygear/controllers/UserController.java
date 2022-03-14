@@ -1,11 +1,16 @@
 package org.boygear.controllers;
 
+import org.boygear.DTO.StationsList;
+import org.boygear.DTO.UserDTO;
+import org.boygear.entities.Station;
 import org.boygear.entities.User;
+import org.boygear.exceptions.BadRequestException;
 import org.boygear.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class UserController {
@@ -14,24 +19,73 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> users() {
-        return userService.getUsersList();
+        if (userService.checkUserIsAdmin()) {
+            return userService.getUsersList();
+        }
+        throw new BadRequestException("details not allowed");
+
     }
+
+    @GetMapping("/users/{id}")
+    public User userGetDetail(@PathVariable Integer id) {
+        boolean isAuthorizeUser = userService.checkUserIsAuthorize(id);
+        if (isAuthorizeUser || userService.checkUserIsAdmin()) {
+            return userService.getUserById(id);
+        }
+        throw new BadRequestException("details not allowed");
+
+    }
+
+    @GetMapping("/users/{id}/favoritestations")
+    public Set<Station> getUsersFavoriteStations(@PathVariable(value = "id") Integer userID) {
+        boolean isAuthorizeUser = userService.checkUserIsAuthorize(userID);
+        if (isAuthorizeUser || userService.checkUserIsAdmin()) {
+            return userService.getUserFavoriteStations(userID);
+        }
+        throw new BadRequestException("details not allowed");
+    }
+
 
     @PostMapping("/users")
-    public User usersPost(@RequestBody User user) {
+    @ResponseBody
+    public User usersPost(@RequestBody UserDTO userDTO) {
 
-        return userService.userAdd(user);
+        boolean userExist = userService.getUserByName(userDTO.getUsername());
+        if (!userExist) {
+            return userService.userAdd(userDTO);
+        }
+        throw new BadRequestException("Username already exist");
+
 
     }
+
+    @PostMapping("/users/{id}/favoritestations")
+    public List<Station> addFavoriteUsers(@RequestBody StationsList stationsList, @PathVariable Integer id) {
+        boolean isAuthorizeUser = userService.checkUserIsAuthorize(id);
+        if (isAuthorizeUser || userService.checkUserIsAdmin()) {
+            return userService.addFavoriteStationsToUser(stationsList.getIds(), id);
+        }
+        throw new BadRequestException("details not allowed");
+    }
+
 
     @PutMapping("/users/{id}")
     public User userUpdate(@RequestBody User changedUser, @PathVariable Integer id) {
-        return userService.updateUser(changedUser, id);
+
+        boolean isAuthorizeUser = userService.checkUserIsAuthorize(id);
+        if (isAuthorizeUser || userService.checkUserIsAdmin()) {
+            return userService.updateUser(changedUser, id);
+        }
+        throw new BadRequestException("details not allowed");
     }
 
     @DeleteMapping("/users/{id}")
     public String deleteUser(@PathVariable Integer id) {
-        return userService.deleteUser(id);
+        boolean isAuthorizeUser = userService.checkUserIsAuthorize(id);
+        if (isAuthorizeUser || userService.checkUserIsAdmin()) {
+            return userService.deleteUser(id);
+        }
+        throw new BadRequestException("details not allowed");
     }
 
 }

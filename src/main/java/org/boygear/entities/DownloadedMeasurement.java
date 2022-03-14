@@ -1,12 +1,8 @@
-package org.boygear.services.download;
+package org.boygear.entities;
 
 import com.google.gson.annotations.SerializedName;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Component
 public class DownloadedMeasurement {

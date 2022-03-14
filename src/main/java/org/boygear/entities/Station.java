@@ -1,8 +1,5 @@
 package org.boygear.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.gson.annotations.SerializedName;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -19,8 +16,9 @@ public class Station {
     private String province;
 
     @OneToMany(mappedBy = "station")
-    //@JsonIgnore
     private List<Measurement> measurementList;
+
+
 
     public Long getStationID() {
         return stationID;

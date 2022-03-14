@@ -1,11 +1,15 @@
 package org.boygear.entities;
 
 
-import org.springframework.lang.NonNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.validator.constraints.UniqueElements;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -13,17 +17,46 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "userid")
     private int id;
     @NotNull
+    @Column(unique = true)
     private String username;
 
     @Column(name = "email")
     @NotNull
     private String email;
 
+    @JsonIgnore
     @NotNull
     private String password;
 
+    private String role;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(
+            name = "UserStations",
+            joinColumns = {@JoinColumn(name = "userid")},
+            inverseJoinColumns = {@JoinColumn(name = "stationid")}
+    )
+    private Set<Station> favoriteStations;
+
+
+    public Set<Station> getFavoriteStations(){
+        return favoriteStations;
+    }
+
+    public void setFavoriteStations(Set<Station> stations){
+        this.favoriteStations = stations;
+    }
 
     public int getId() {
         return id;

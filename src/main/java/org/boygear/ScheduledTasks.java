@@ -24,7 +24,7 @@ public class ScheduledTasks {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(fixedRate = 6000)
+    @Scheduled(fixedRate = 60000)
     public List<Measurement> getAndSaveNewMeasurement() {
         log.info("The time is now {}", dateFormat.format(new Date()));
         return measurementService.addNewMeasurementList(downloadService.getCurrentMeasurementList());
