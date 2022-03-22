@@ -4,6 +4,7 @@ import org.boygear.DTO.UserDTO;
 import org.boygear.entities.User;
 import org.boygear.repositories.UserRepository;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -22,20 +23,33 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class UserServiceTest {
 
+    private UserDTO userDTO = new UserDTO();
+    private User user = new User();
+
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
     private UserService userService;
+    @Before
+    public void setUser() {
+        user.setUsername("boygear");
+        user.setEmail("test@test.com");
+        user.setPassword("testPassword");
+        userDTO.setUsername("boygear");
+        userDTO.setEmail("test@test.com");
+        userDTO.setPassword("testPassword");
+    }
 
     @Test
     public void userAdd() {
         //given
-        UserDTO userDTO = new UserDTO();
+
         User user = new User();
         user.setUsername("boygear");
         user.setPassword("passowrd");
         user.setEmail("boy@test.pl");
+        UserDTO userDTO = new UserDTO();
         userDTO.setUsername("boygear");
         userDTO.setPassword("passowrd");
         userDTO.setEmail("boy@test.pl");
@@ -78,14 +92,8 @@ public class UserServiceTest {
     @Test
     public void updateUserWhenExist() {
         //given
-        User user = new User();
-        user.setId(1);
-        user.setUsername("boygear");
-        user.setPassword("passowrd");
-        user.setEmail("boy@test.pl");
 
-        User changedUser = new User();
-        changedUser.setId(1);
+        UserDTO changedUser = new UserDTO();
         changedUser.setUsername("boygear");
         changedUser.setPassword("passowrd");
         changedUser.setEmail("newEmail@test.pl");
@@ -113,12 +121,12 @@ public class UserServiceTest {
         user.setPassword("passowrd");
         user.setEmail("boy@test.pl");
 
-        User changedUser = new User();
-        changedUser.setId(1);
+        UserDTO changedUser = new UserDTO();
         changedUser.setUsername("boygear");
         changedUser.setPassword("passowrd");
         changedUser.setEmail("newEmail@test.pl");
 
+        user.setId(1);
         Mockito.when(userRepository.findById(1)).thenReturn(Optional.of(user));
         Mockito.when(userRepository.save(user)).thenReturn(user);
 

@@ -28,16 +28,7 @@ public class UserService {
 
     public User userAdd(UserDTO userDTO) {
         validateUserDTO(userDTO);
-        User user = new User();
-
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
-        user.setPassword(encodedPassword);
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setRole(userDTO.getRole());
-
-        return userRepository.save(user);
+        return userRepository.save(mapUserDTOtoUser(userDTO));
     }
 
     public List<User> getUsersList() {
@@ -52,16 +43,28 @@ public class UserService {
         return userRepository.existsByUsername(name);
     }
 
+    private User mapUserDTOtoUser(UserDTO userDTO){
+        User user = new User();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+        user.setPassword(encodedPassword);
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setRole(userDTO.getRole());
+        return user;
+    }
 
-    public User updateUser(User changedUser, Integer id) {
+
+    public User updateUser(UserDTO changedUserDTO, Integer id) {
 
         return userRepository.findById(id)
                 .map(user -> {
-                    user.setEmail(changedUser.getEmail());
+                    user.setEmail(changedUserDTO.getEmail());
                     return userRepository.save(user);
                 })
                 .orElseGet(() -> {
-                    return userRepository.save(changedUser);
+                    validateUserDTO(changedUserDTO);
+                    return userRepository.save(mapUserDTOtoUser(changedUserDTO));
                 });
 
     }
@@ -127,9 +130,11 @@ public class UserService {
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    private void validateUserDTO(UserDTO userDTO) {
-        if (userDTO.getEmail() == null || userDTO.getPassword() == null || userDTO.getUsername() == null) {
-            throw new BadRequestException("Błędne dane");
+    public boolean validateUserDTO(UserDTO userDTO) {
+        if (userDTO== null ||userDTO.getEmail() == null || userDTO.getPassword() == null || userDTO.getUsername() == null) {
+            throw new BadRequestException("Invalid data");
+        }else{
+            return true;
         }
     }
 }

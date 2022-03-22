@@ -4,6 +4,7 @@ import org.springframework.stereotype.Indexed;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(indexes = @Index(columnList = "waterLevelMeasurementDate"))
@@ -92,6 +93,18 @@ public class Measurement {
         this.station = station;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Measurement that = (Measurement) o;
+        return Objects.equals(id, that.id) && Objects.equals(waterLevel, that.waterLevel) && Objects.equals(waterLevelMeasurementDate, that.waterLevelMeasurementDate) && Objects.equals(waterTemperature, that.waterTemperature) && Objects.equals(iceDanger, that.iceDanger) && Objects.equals(iceDangerMeasurementDate, that.iceDangerMeasurementDate) && Objects.equals(encroachLevel, that.encroachLevel) && Objects.equals(encroachLevelMeasureDate, that.encroachLevelMeasureDate) && Objects.equals(station, that.station);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, waterLevel, waterLevelMeasurementDate, waterTemperature, iceDanger, iceDangerMeasurementDate, encroachLevel, encroachLevelMeasureDate, station);
+    }
 }
 
 

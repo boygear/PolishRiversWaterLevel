@@ -7,6 +7,7 @@ import org.boygear.entities.User;
 import org.boygear.exceptions.BadRequestException;
 import org.boygear.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,23 +17,35 @@ import java.util.Set;
 public class UserController {
     @Autowired
     private UserService userService;
-
     @GetMapping("/users")
+    @Secured("ROLE_ADMIN")
     public List<User> users() {
-        if (userService.checkUserIsAdmin()) {
             return userService.getUsersList();
-        }
-        throw new BadRequestException("details not allowed");
-
     }
 
     @GetMapping("/users/{id}")
     public User userGetDetail(@PathVariable Integer id) {
         boolean isAuthorizeUser = userService.checkUserIsAuthorize(id);
         if (isAuthorizeUser || userService.checkUserIsAdmin()) {
+
             return userService.getUserById(id);
         }
         throw new BadRequestException("details not allowed");
+
+    }
+    @PostMapping("/users")
+    @ResponseBody
+    public User usersPost(@RequestBody UserDTO userDTO) {
+
+        if(userDTO == null){
+            throw new BadRequestException("user is invalid");
+        }
+        boolean userExist = userService.getUserByName(userDTO.getUsername());
+        if (userExist || !userService.validateUserDTO(userDTO)) {
+            throw new BadRequestException("Username already exist or user is invalid");
+        }
+        return userService.userAdd(userDTO);
+
 
     }
 
@@ -43,20 +56,6 @@ public class UserController {
             return userService.getUserFavoriteStations(userID);
         }
         throw new BadRequestException("details not allowed");
-    }
-
-
-    @PostMapping("/users")
-    @ResponseBody
-    public User usersPost(@RequestBody UserDTO userDTO) {
-
-        boolean userExist = userService.getUserByName(userDTO.getUsername());
-        if (!userExist) {
-            return userService.userAdd(userDTO);
-        }
-        throw new BadRequestException("Username already exist");
-
-
     }
 
     @PostMapping("/users/{id}/favoritestations")
@@ -70,7 +69,7 @@ public class UserController {
 
 
     @PutMapping("/users/{id}")
-    public User userUpdate(@RequestBody User changedUser, @PathVariable Integer id) {
+    public User userUpdate(@RequestBody UserDTO changedUser, @PathVariable Integer id) {
 
         boolean isAuthorizeUser = userService.checkUserIsAuthorize(id);
         if (isAuthorizeUser || userService.checkUserIsAdmin()) {
@@ -87,5 +86,6 @@ public class UserController {
         }
         throw new BadRequestException("details not allowed");
     }
+
 
 }

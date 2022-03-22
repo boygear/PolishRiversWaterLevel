@@ -42,17 +42,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+
                 .antMatchers(HttpMethod.GET, "/measurement/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/stations/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/users").permitAll()
-                .antMatchers(HttpMethod.PUT, "/users/*").hasRole("USER")
+                .antMatchers(HttpMethod.PUT, "/users/*").hasAnyRole("USER","ADMIN")
+                .antMatchers(HttpMethod.GET, "/users/*").hasAnyRole("USER","ADMIN")
+                .antMatchers(HttpMethod.GET, "/users/*/favoritestations").hasAnyRole("USER","ADMIN")
+                .antMatchers(HttpMethod.POST, "/users/*/favoritestations").hasAnyRole("USER","ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/users/*").hasAnyRole("USER","ADMIN")
                 .antMatchers("/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET, "/users/*").hasRole("USER")
-                .antMatchers(HttpMethod.GET, "/users/*/favoritestations").hasRole("USER")
-                .antMatchers(HttpMethod.POST, "/users/*/favoritestations").hasRole("USER")
-                .antMatchers(HttpMethod.DELETE, "/users/*").hasRole("USER")
                 .and()
-                .formLogin().loginProcessingUrl("/login").permitAll()
-                .and().csrf().disable().logout().permitAll();
+                .formLogin().loginProcessingUrl("/login").defaultSuccessUrl("/stations", true).permitAll()
+                .and()
+                .csrf().disable()
+                .logout().permitAll();
     }
 }
